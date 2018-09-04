@@ -114,15 +114,15 @@ export const encodeBatches = batches => {
 export const encodeAll = (privateKey, payloads) => {
   // Your code here
 
-// return encodeBatches()
-// batchList(batch = transaction , payload)
-if (!Array.isArray(payloads)) {
-  payloads = [ payloads ];
-}
-const transactions = payloads.map(p => createTransaction(privateKey,p));
-const batch = createBatch(privateKey, transactions);
+  // return encodeBatches()
+  // batchList(batch = transaction , payload)
+  if (!Array.isArray(payloads)) {
+    payloads = [ payloads ];
+  }
+  const transactions = payloads.map(p => createTransaction(privateKey,p));
+  const batch = createBatch(privateKey, transactions);
 
-return encodeBatches(batch);
+  return encodeBatches(batch);
 
 
 };
