@@ -5,7 +5,9 @@ import {
   BatchHeader,
   BatchList
 } from 'sawtooth-sdk/protobuf';
-import { createHash } from 'crypto';
+
+
+import { createHash,randomBytes } from 'crypto';
 import { getPublicKey, sign } from './signing.js';
 import { encode } from './encoding.js';
 
@@ -29,7 +31,26 @@ const NAMESPACE = '5f4d76';
  */
 export const createTransaction = (privateKey, payload) => {
   // Enter your solution here
-
+  const encodedPayload = encode(payload);
+  const publicKey = getPublicKey(privateKey);
+  const transactionHeaderBytes = TransactionHeader.encode({
+    familyName: FAMILY_NAME,
+    familyVersion: FAMILY_VERSION,
+    inputs: [NAMESPACE],
+    outputs: [NAMESPACE],
+    signerPublicKey: publicKey,
+    batcherPublicKey: publicKey,
+    nonce: randomBytes(32).toString(),
+    payloadSha512: createHash('sha512').update(encodedPayload).digest('hex')
+  }).finish();
+ 
+  const signature = sign(privateKey, transactionHeaderBytes);
+  const transaction = Transaction.create({
+    header: transactionHeaderBytes,
+    headerSignature: signature,
+    payload: encodedPayload
+  });
+  return transaction;
 };
 
 /**
@@ -41,6 +62,24 @@ export const createTransaction = (privateKey, payload) => {
  */
 export const createBatch = (privateKey, transactions) => {
   // Your code here
+
+  if (!Array.isArray(transactions)){
+    transactions = [transactions];
+  }
+  const publicKey = getPublicKey(privateKey);
+  const batchHeaderBytes = BatchHeader.encode({
+    signerPublicKey: publicKey,
+    transactionIds: transactions.map(trans => trans.headerSignature)
+  }).finish();
+
+  const signature = sign(privateKey, batchHeaderBytes);
+
+  const batch = Batch.create({
+    header: batchHeaderBytes,
+    headerSignature: signature,
+    transactions: transactions
+  });
+  return batch;
 
 };
 
@@ -74,5 +113,16 @@ export const encodeBatches = batches => {
  */
 export const encodeAll = (privateKey, payloads) => {
   // Your code here
+
+// return encodeBatches()
+// batchList(batch = transaction , payload)
+if (!Array.isArray(payloads)) {
+  payloads = [ payloads ];
+}
+const transactions = payloads.map(p => createTransaction(privateKey,p));
+const batch = createBatch(privateKey, transactions);
+
+return encodeBatches(batch);
+
 
 };

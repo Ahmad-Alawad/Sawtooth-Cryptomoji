@@ -47,7 +47,7 @@ describe('Transactions module', function() {
     it('should include TransactionHeader with correct properties', function() {
       expect(() => TransactionHeader.decode(transaction.header)).to.not.throw();
       const header = TransactionHeader.decode(transaction.header);
-
+      
       expect(header.signerPublicKey)
         .to.be.set
         .and.be.a.hexString
@@ -56,15 +56,22 @@ describe('Transactions module', function() {
         .to.be.set
         .and.be.a.hexString
         .and.equal(keys.publicKey);
+
+        
       expect(header.familyName)
         .to.be.set
         .and.be.a('string')
         .and.equal('cryptomoji');
+
+         
       expect(header.familyVersion)
         .to.be.set
         .and.be.a('string')
         .and.equal('0.1');
 
+        console.log("inside test, inputs",header.inputs);
+
+      
       expect(header.inputs)
         .to.be.set
         .and.be.an('array');

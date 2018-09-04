@@ -1,6 +1,8 @@
 import * as secp256k1 from 'secp256k1';
 import { randomBytes, createHash } from 'crypto';
+const toBytes = hex => Buffer.from(hex, 'hex');
 
+// const sha256 = msg => createHash('sha256').update(msg).digest();
 
 /**
  * This module is essentially identical to part-one's signing module.
@@ -11,6 +13,12 @@ import { randomBytes, createHash } from 'crypto';
  */
 export const createPrivateKey = () => {
   // Enter your solution here
+  let privateKey;
+  do {
+    privateKey = randomBytes(32);
+  } while (!secp256k1.privateKeyVerify(privateKey));
+
+  return privateKey.toString('hex');
 
 };
 
@@ -20,6 +28,8 @@ export const createPrivateKey = () => {
  */
 export const getPublicKey = privateKey => {
   // Your code here
+  const privKey = Buffer.from(privateKey,'hex');
+  return secp256k1.publicKeyCreate(privKey).toString('hex');
 
 };
 
@@ -40,6 +50,9 @@ export const getPublicKey = privateKey => {
  */
 export const createKeys = () => {
   // Your code here
+  let privateKey = createPrivateKey();
+  let publicKey = getPublicKey(privateKey);
+  return {'privateKey':privateKey, 'publicKey':publicKey};
 
 };
 
@@ -49,5 +62,8 @@ export const createKeys = () => {
  */
 export const sign = (privateKey, message) => {
   // Your code here
+  const sha256 = msg => createHash('sha256').update(msg).digest();
 
+  const  {signature } = secp256k1.sign(sha256(message), toBytes(privateKey));
+  return signature.toString('hex');
 };

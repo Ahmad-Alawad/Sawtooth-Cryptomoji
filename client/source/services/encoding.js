@@ -16,6 +16,14 @@
 export const encode = object => {
   // Enter your solution here
 
+  let sortedKeys = Object.keys(object);
+  sortedKeys.sort();
+  var sortedObject = {};
+  let key;
+  for (key of sortedKeys){
+    sortedObject[key] = object[key];
+  }
+  return Buffer.from(JSON.stringify(sortedObject));
 };
 
 /**
@@ -29,5 +37,8 @@ export const encode = object => {
  */
 export const decode = base64Str => {
   // Your code here
+  var buffer = Buffer.from(base64Str, 'base64');
+  console.log(buffer);
+  return  JSON.parse(buffer);
 
 };
