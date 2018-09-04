@@ -11,6 +11,10 @@ const PREFIXES = {
   OFFER: '03'
 };
 
+
+const hash = (str, length) => {
+  return createHash('sha512').update(str).digest('hex').slice(0, length);
+};
 /**
  * A function that takes a public key and returns the corresponding collection
  * address.
@@ -25,6 +29,12 @@ const PREFIXES = {
  */
 const getCollectionAddress = publicKey => {
   // Enter your solution here
+  if (publicKey==null){
+    return NAMESPACE+PREFIXES.COLLECTION;
+  }
+  else{
+    return NAMESPACE+PREFIXES.COLLECTION+hash(publicKey,62);
+  }
 
 };
 
@@ -34,7 +44,15 @@ const getCollectionAddress = publicKey => {
  */
 const getMojiAddress = (ownerKey, dna) => {
   // Your code here
+  if (ownerKey==null && dna == null){
+    return NAMESPACE+PREFIXES.MOJI;
+  }
+  else if (ownerKey !== null && dna == null){
+    return NAMESPACE+PREFIXES.MOJI+hash(ownerKey,8);
+  }else{
+    return  NAMESPACE+PREFIXES.MOJI+hash(ownerKey,8)+hash(dna,54) ;
 
+  }
 };
 
 /**
@@ -43,7 +61,12 @@ const getMojiAddress = (ownerKey, dna) => {
  */
 const getSireAddress = ownerKey => {
   // Your code here
-
+  if (ownerKey==null){
+    return NAMESPACE+PREFIXES.SIRE_LISTING;
+  }
+  else{
+    return NAMESPACE+PREFIXES.SIRE_LISTING+hash(ownerKey,62);
+  }
 };
 
 /**

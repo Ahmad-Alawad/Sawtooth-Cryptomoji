@@ -15,8 +15,19 @@
  *   deterministically! JSON is convenient, but you will need to sort
  *   your object's keys or random transactions may fail.
  */
+
+
 const encode = object => {
   // Enter your solution here
+  let sortedKeys = Object.keys(object);
+  sortedKeys.sort();
+  var sortedObject = {};
+  let key;
+  for (key of sortedKeys){
+    sortedObject[key] = object[key];
+  }
+  return Buffer.from(JSON.stringify(sortedObject));
+
 
 };
 
@@ -26,6 +37,7 @@ const encode = object => {
  */
 const decode = buffer => {
   // Your code here
+  return  JSON.parse(buffer);
 
 };
 
