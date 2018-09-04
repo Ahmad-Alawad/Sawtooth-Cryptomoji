@@ -97,8 +97,27 @@ const getOfferAddress = (ownerKey, addresses) => {
  *   const isValid = isValidAddress('00000000');
  *   console.log(isValid);  // false
  */
+
+function isHex(h) {
+  var a = parseInt(h,16);
+  return (a.toString(16) ===h.toLowerCase())
+  }
+
+
 const isValidAddress = address => {
   // Your code here
+  const pattern = `^${NAMESPACE}[0-9a-f]{64}$`;
+
+  return new RegExp(pattern).test(address);
+// };
+// console.log("Address", address);
+// console.log("SLICE", address.slice(0,8));
+// if (typeof(address)!="string" || address.slice(0,6)!= '5f4d76' || address.length != 70 || isHex(address)){
+//   return false;
+// } else{
+//   return true;
+// }
+
 
 };
 

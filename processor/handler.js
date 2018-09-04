@@ -49,7 +49,20 @@ class MojiHandler extends TransactionHandler {
   apply (txn, context) {
     // Enter your solution here
     // (start by decoding your payload and checking which action it has)
+    let payload = null;
 
+    try {
+      const payload = decode(txn.payload);
+    } catch (error) {
+      throw new InvalidTransaction('Unable to decode payload');
+    }
+
+    var payloadActoins = ['CREATE_COLLECTION','SELECT_SIRE', 'BREED_MOJI', ];
+    // if (payload==null) return [];
+    if(payload.action in payloadActoins){
+      return [];
+    }
+    
   }
 }
 
