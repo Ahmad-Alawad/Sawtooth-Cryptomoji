@@ -17,6 +17,7 @@ const handler = new MojiHandler();
 const baseApply = handler.apply;
 handler.apply = (txn, context) => {
   try {
+    console.log("\n\nInside index\n\n");
     return baseApply.call(handler, txn, context);
   } catch (err) {
     return new Promise((_, reject) => reject(err));

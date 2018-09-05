@@ -2,13 +2,13 @@
 
 const { TransactionHandler } = require('sawtooth-sdk/processor/handler');
 const { InvalidTransaction } = require('sawtooth-sdk/processor/exceptions');
-const { decode } = require('./services/encoding');
+const { decode, encode } = require('./services/encoding');
 
 
 const FAMILY_NAME = 'cryptomoji';
 const FAMILY_VERSION = '0.1';
 const NAMESPACE = '5f4d76';
-
+const {getCollectionAddress} = require ('./services/addressing');
 /**
  * A Cryptomoji specific version of a Hyperledger Sawtooth Transaction Handler.
  */
@@ -49,20 +49,50 @@ class MojiHandler extends TransactionHandler {
   apply (txn, context) {
     // Enter your solution here
     // (start by decoding your payload and checking which action it has)
-    let payload = null;
-
-    try {
-      const payload = decode(txn.payload);
-    } catch (error) {
-      throw new InvalidTransaction('Unable to decode payload');
-    }
 
     var payloadActoins = ['CREATE_COLLECTION','SELECT_SIRE', 'BREED_MOJI', ];
-    // if (payload==null) return [];
-    if(payload.action in payloadActoins){
-      return [];
+    let payload
+
+    function _in(x,val) {
+      for (var i=0; i<x.length; i++){
+        if (val==x[i]){
+          return true;
+        }
+        return false;
+      }
     }
-    
+
+    try {
+      payload = decode(txn.payload);
+      console.log('PAYLOAD:', payload)
+        
+      
+    } catch (error) { 
+      throw new InvalidTransaction('Unable to decode payload');
+    }
+    if( !payload || !_in(payloadActoins, payload.action)){
+      throw new InvalidTransaction('Not valid transaction');
+    }else{
+      console.log("Inside else", payload.action.toString());
+      if (payload.action.toString() === 'CREATE_COLLECTION' ){
+        const publicKey = txn.header.signerPublicKey;
+        // console.log("pubblicKey", publicKey);
+
+        const colAddress = getCollectionAddress(publicKey);
+        return context.getState([colAddress]).then(state => {
+          if (state[colAddress].length > 0) {
+            throw new InvalidTransaction('collection already exit');
+          }
+
+          const update = {};
+          
+          update[colAddress] = encode({key: publicKey, moji: [colAddress,colAddress,colAddress]});
+
+          return context.setState(update);
+
+      });
+      }
+    }    
   }
 }
 

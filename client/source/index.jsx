@@ -9,3 +9,8 @@ ReactDOM.render((
   </BrowserRouter>
 ), document.getElementById('app'));
 
+ReactDOM.render((
+  <BrowserRouter>
+    <h1>HI SARAH</h1>
+  </BrowserRouter>
+), document.getElementById('div2'));
