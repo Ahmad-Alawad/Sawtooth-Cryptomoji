@@ -8,11 +8,22 @@ const { decode, encode } = require('./services/encoding');
 const FAMILY_NAME = 'cryptomoji';
 const FAMILY_VERSION = '0.1';
 const NAMESPACE = '5f4d76';
-const {getCollectionAddress} = require ('./services/addressing');
+const {getCollectionAddress, getMojiAddress} = require ('./services/addressing');
+
+
+const privateKey = "1d7bf2bba9a96500052b5f89ca0fd313d55e97e317ab040aa354142e6894917a";
+const publicKey =  "0385bb66d9fc0e325cbf2147ba297e52a0ae8d3c2d40400d9a66a060a1c86a758c";
+
+// const {getPublicKey} = require('../client/source/services/signing');
 /**
  * A Cryptomoji specific version of a Hyperledger Sawtooth Transaction Handler.
  */
 class MojiHandler extends TransactionHandler {
+
+
+  createMoji(ownerKey, moji) {
+    return getMojiAddress(ownerKey, moji.dna);
+  }
   /**
    * The constructor for a TransactionHandler simply registers it with the
    * validator, declaring which family name, versions, and namespaces it
@@ -50,8 +61,9 @@ class MojiHandler extends TransactionHandler {
     // Enter your solution here
     // (start by decoding your payload and checking which action it has)
 
-    var payloadActoins = ['CREATE_COLLECTION','SELECT_SIRE', 'BREED_MOJI', ];
-    let payload
+    var payloadActoins = ['CREATE_COLLECTION','SELECT_SIRE', 'BREED_MOJI'];
+    let payload;
+    // let publicKey;
 
     function _in(x,val) {
       for (var i=0; i<x.length; i++){
@@ -61,7 +73,7 @@ class MojiHandler extends TransactionHandler {
         return false;
       }
     }
-
+console.log("\n\n\n\nBeforeTry\n\n\n\n\n");
     try {
       payload = decode(txn.payload);
       console.log('PAYLOAD:', payload)
@@ -75,7 +87,7 @@ class MojiHandler extends TransactionHandler {
     }else{
       console.log("Inside else", payload.action.toString());
       if (payload.action.toString() === 'CREATE_COLLECTION' ){
-        const publicKey = txn.header.signerPublicKey;
+        // publicKey = txn.header.signerPublicKey;
         // console.log("pubblicKey", publicKey);
 
         const colAddress = getCollectionAddress(publicKey);
@@ -83,13 +95,48 @@ class MojiHandler extends TransactionHandler {
           if (state[colAddress].length > 0) {
             throw new InvalidTransaction('collection already exit');
           }
+          console.log("AfterTry");
 
-          const update = {};
-          
-          update[colAddress] = encode({key: publicKey, moji: [colAddress,colAddress,colAddress]});
+          const collection = {};
+          let moji = [];
+        let moji0 = {
+          "dna": "Sarah1",
+          "owner": publicKey,
+          "breeder": "",
+          "sire": "",
+          "bred": [ "" ],
+          "sired": [ "" ]
+        };
+        let moji1 = {
+          "dna": "Ahmad1",
+          "owner": publicKey,
+          "breeder": "",
+          "sire": "",
+          "bred": [ "" ],
+          "sired": [ "" ]
+        };
+       let moji2 = {
+          "dna": "Walid1",
+          "owner": publicKey,
+          "breeder": "",
+          "sire": "",
+          "bred": [ "" ],
+          "sired": [ "" ]
+        };
 
-          return context.setState(update);
+        moji[0] = this.createMoji(publicKey, moji0);       
+        moji[1] = this.createMoji(publicKey, moji1);
+        moji[2] = this.createMoji(publicKey, moji2);
 
+        collection[colAddress] = encode({key: publicKey , moji: moji});
+        collection[moji[0]] = encode(moji0); 
+        collection[moji[1]] = encode(moji1); 
+        collection[moji[2]] = encode(moji2); 
+
+        console.log("collection",collection);
+        return context.setState({
+          collection
+        });
       });
       }
     }    
